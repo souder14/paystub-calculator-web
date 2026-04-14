@@ -1,7 +1,11 @@
-# Cloudflare Pages — static files live at the repo root (see pages_build_output_dir).
-# Use: npx wrangler pages deploy
-# Do NOT use: npx wrangler deploy  (that targets Workers, not this site)
+# Cloudflare Pages (Wrangler CLI)
+# Deploy:  npm run deploy   OR   npx wrangler pages deploy
+# Login:   npm run cf:login
+# Do NOT use: npx wrangler deploy  (Workers only — wrong for this repo)
 
 name = "paystub-calculator-web"
 compatibility_date = "2024-04-01"
 pages_build_output_dir = "."
+
+# Optional: pin account (find in Cloudflare dashboard → Workers overview → right column)
+# account_id = "your_account_id_here"

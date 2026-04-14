@@ -1,10 +1,16 @@
 {
   "name": "paystub-calculator-web",
   "private": true,
-  "description": "Static payroll calculator — no bundler.",
+  "description": "Static payroll calculator — deploy with Wrangler Pages (npm run deploy).",
+  "engines": {
+    "node": ">=20.3.0"
+  },
   "scripts": {
     "build": "node -e \"process.exit(0)\"",
-    "pages:deploy": "wrangler pages deploy"
+    "deploy": "wrangler pages deploy",
+    "pages:deploy": "wrangler pages deploy",
+    "cf:login": "wrangler login",
+    "cf:whoami": "wrangler whoami"
   },
   "devDependencies": {
     "wrangler": "^4.82.0"

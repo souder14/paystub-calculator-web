@@ -1,22 +1,36 @@
-Cloudflare Pages — fix "wrangler deploy" errors
-================================================
+Cloudflare Pages + Wrangler CLI
+================================
 
-Your build log must NOT run:  npx wrangler deploy
-That command is for Workers only. This repo is static HTML/JS.
+This site is static HTML/JS. Deploy from your machine with Wrangler (recommended for you).
 
-OPTION A (recommended)
-----------------------
-1. Cloudflare Dashboard → Workers & Pages → your project → Settings → Builds & deployments.
-2. Delete / clear the custom "Deploy command" field entirely (leave it empty).
-3. Build command: leave empty (or: npm run build).
-4. Build output directory: /  (slash = repository root, where payroll-calculator.html lives).
-5. Save and redeploy.
+1) Prerequisites
+   - Node.js 20.3 or newer (Wrangler requires it)
+   - A Cloudflare account
 
-OPTION B (if you must use Wrangler in the deploy step)
------------------------------------------------------
-1. Set Deploy command to EXACTLY one of:
-     npx wrangler pages deploy
-   or after install:
-     npm run pages:deploy
-2. Keep wrangler.toml in the repo (already committed).
-3. Do NOT use: npx wrangler deploy
+2) One-time setup
+   npm install
+   npx wrangler login
+   (Browser opens — authorize Wrangler for your account.)
+
+3) Deploy (every time you want to publish)
+   npm run deploy
+
+   That runs: wrangler pages deploy
+   It reads ./wrangler.toml — static files are the repo root (pages_build_output_dir = ".").
+
+4) Project name
+   wrangler.toml has: name = "paystub-calculator-web"
+   Your Cloudflare Pages project name should match, OR run once with an explicit name:
+   npx wrangler pages deploy --project-name=YOUR_PROJECT_NAME
+
+5) Do NOT run
+   npx wrangler deploy
+   That is for Workers only, not Pages. Use "wrangler pages deploy" (or npm run deploy).
+
+---
+
+Optional: Git-connected builds in Cloudflare
+--------------------------------------------
+If the dashboard still runs a custom "Deploy command", clear it or set it to:
+  npx wrangler pages deploy
+Never use: npx wrangler deploy
