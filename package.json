@@ -1,8 +1,12 @@
 {
   "name": "paystub-calculator-web",
   "private": true,
-  "description": "Static payroll calculator — no bundler. Deploy with Cloudflare Pages (output = repo root) or `npx wrangler pages deploy`.",
+  "description": "Static payroll calculator — no bundler.",
   "scripts": {
-    "build": "node -e \"console.log('Static site: no build output needed.')\""
+    "build": "node -e \"process.exit(0)\"",
+    "pages:deploy": "wrangler pages deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.82.0"
   }
 }

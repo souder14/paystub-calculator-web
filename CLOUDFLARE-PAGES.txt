@@ -1,0 +1,22 @@
+Cloudflare Pages — fix "wrangler deploy" errors
+================================================
+
+Your build log must NOT run:  npx wrangler deploy
+That command is for Workers only. This repo is static HTML/JS.
+
+OPTION A (recommended)
+----------------------
+1. Cloudflare Dashboard → Workers & Pages → your project → Settings → Builds & deployments.
+2. Delete / clear the custom "Deploy command" field entirely (leave it empty).
+3. Build command: leave empty (or: npm run build).
+4. Build output directory: /  (slash = repository root, where payroll-calculator.html lives).
+5. Save and redeploy.
+
+OPTION B (if you must use Wrangler in the deploy step)
+-----------------------------------------------------
+1. Set Deploy command to EXACTLY one of:
+     npx wrangler pages deploy
+   or after install:
+     npm run pages:deploy
+2. Keep wrangler.toml in the repo (already committed).
+3. Do NOT use: npx wrangler deploy

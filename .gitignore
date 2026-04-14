@@ -26,6 +26,9 @@ validate_*.js
 __pycache__/
 *.pyc
 
+# Dependencies (lockfile is committed)
+node_modules/
+
 # OS files
 .DS_Store
 Thumbs.db
