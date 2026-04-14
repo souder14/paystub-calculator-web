@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll Calculator</title>
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <style>
+        .calculator-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .results-table {
+            font-size: 0.875rem;
+        }
+        /* Mobile card styling handled by Tailwind classes */
+
+        @media (max-width: 767px) {
+            .results-table {
+                font-size: 0.7rem;
+            }
+            .results-table th,
+            .results-table td {
+                padding: 0.2rem;
+            }
+        }
+
+        /* Copy functionality styles */
+        .copyable {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .copyable:hover {
+            background-color: #f0f9ff;
+        }
+
+        .mobile-card .copyable:hover {
+            background-color: #f8fafc;
+        }
+
+        .copy-success {
+            position: relative;
+        }
+
+        .copy-success::after {
+            content: 'Copied!';
+            position: absolute;
+            top: -20px;
+            right: 0;
+            background: #10b981;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            z-index: 10;
+            animation: fadeInOut 2s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            20%, 80% { opacity: 1; }
+        }
+
+        /* Editable field styles */
+        .editable-field {
+            transition: all 0.2s ease;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .editable-field:hover {
+            background-color: #dbeafe !important;
+            border-color: #3b82f6 !important;
+        }
+
+        .editable-field:focus {
+            background-color: #eff6ff !important;
+            border-color: #2563eb !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Editable YTD field styles - green theme to distinguish from current period */
+        .editable-ytd-field {
+            transition: all 0.2s ease;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .editable-ytd-field:hover {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+        }
+
+        .editable-ytd-field:focus {
+            background-color: #f0fdf4 !important;
+            border-color: #16a34a !important;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+
+        /* Copy-only mode: buttons, not inputs — dashed border vs solid inputs in edit mode */
+        button.copy-only-field-btn {
+            cursor: pointer;
+            font: inherit;
+            margin: 0;
+            appearance: none;
+            -webkit-appearance: none;
+            user-select: none;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
+        }
+
+        button.copy-only-field-btn:hover {
+            background-color: #eff6ff !important;
+            border-color: #2563eb !important;
+        }
+
+        button.copy-only-ytd-btn {
+            cursor: pointer;
+            font: inherit;
+            margin: 0;
+            appearance: none;
+            -webkit-appearance: none;
+            user-select: none;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
+        }
+
+        button.copy-only-ytd-btn:hover {
+            background-color: #f0fdf4 !important;
+            border-color: #16a34a !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen py-8">
+    <div class="calculator-container px-4">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 text-center mb-2">Payroll Calculator</h1>
+            <p class="text-gray-600 text-center text-sm md:text-base">Calculate payroll taxes and net pay for multiple states</p>
+        </div>
+
+        <!-- Input Form -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Enter Payroll Information</h2>
+            <form id="payrollForm" class="space-y-4">
+                <!-- Pay Period Year -->
+                <div>
+                    <label for="payPeriodYear" class="block text-sm font-medium text-gray-700 mb-1">Pay Period Year(s)</label>
+                    <select id="payPeriodYear" name="payPeriodYear" multiple size="5"
+                            class="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="2024">2024</option>
+                        <option value="2025" selected>2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                        <option value="2028">2028</option>
+                        <option value="2029">2029</option>
+                        <option value="2030">2030</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Hold Ctrl (Windows) or Command (Mac) to select multiple years.</p>
+                </div>
+                <div>
+                    <label for="payDateOffsetDays" class="block text-sm font-medium text-gray-700 mb-1">Pay Date Offset (days)</label>
+                    <input type="number" id="payDateOffsetDays" name="payDateOffsetDays" value="0" step="1"
+                           class="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="0">
+                    <p class="text-xs text-gray-500 mt-1">Use negative numbers to move earlier, positive to move later.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label for="payType" class="block text-sm font-medium text-gray-700 mb-1">Pay Type</label>
+                        <select id="payType" name="payType"
+                                class="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="hourly">Hourly</option>
+                            <option value="salary">Salary</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+
+                    <div id="hourlyFields" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Hours Range -->
+                        <div>
+                            <label for="startHours" class="block text-sm font-medium text-gray-700 mb-1">Start Hours</label>
+                            <input type="number" id="startHours" name="startHours" min="0" max="100" step="0.5"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="75">
+                        </div>
+                        <div>
+                            <label for="endHours" class="block text-sm font-medium text-gray-700 mb-1">End Hours</label>
+                            <input type="number" id="endHours" name="endHours" min="0" max="100" step="0.5"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="80">
+                        </div>
+                        <!-- Pay Rate -->
+                        <div>
+                            <label for="payRate" class="block text-sm font-medium text-gray-700 mb-1">Hourly Pay Rate ($)</label>
+                            <input type="number" id="payRate" name="payRate" min="0" step="0.01"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="14.00">
+                        </div>
+                    </div>
+
+                    <div id="salaryFields" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
+                        <div>
+                            <label for="salaryMethod" class="block text-sm font-medium text-gray-700 mb-1">Gross Pay Method</label>
+                            <select id="salaryMethod" name="salaryMethod"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="annual">Per Year</option>
+                                <option value="monthly">Per Month</option>
+                                <option value="perPeriod">Pay Per Period</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="salaryAmount" class="block text-sm font-medium text-gray-700 mb-1">Amount ($)</label>
+                            <input type="number" id="salaryAmount" name="salaryAmount" min="0" step="0.01"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="60000">
+                        </div>
+                        <div class="md:col-span-2 text-sm text-gray-500 flex justify-between items-center">
+                            <span>Salaried calculations assume 26 bi-weekly pay periods per year.</span>
+                            <div id="hourlyRateContainer" class="hidden bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+                                <span class="text-gray-600 font-medium">Est. Hourly: </span>
+                                <span id="hourlyRateDisplay" class="font-bold text-blue-700"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- State Selection -->
+                <div>
+                    <label for="stateSelect" class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                    <select id="stateSelect" name="stateSelect"
+                            class="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required>
+                        <option value="">Select a state...</option>
+                    </select>
+                </div>
+
+                <!-- Result display options (available before and after you calculate) -->
+                <div class="rounded-md border border-gray-200 bg-gray-50 p-4 space-y-3" id="resultFormatOptions">
+                    <div class="text-sm font-medium text-gray-800">Payroll results display</div>
+                    <div class="flex flex-col sm:flex-row gap-4 flex-wrap">
+                        <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+                            <input type="checkbox" id="plainTextFormat" class="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="text-sm text-gray-700">Hide currency symbols ($)</span>
+                        </label>
+                        <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+                            <input type="checkbox" id="showCommas" checked class="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="text-sm text-gray-700">Show thousands separators (,)</span>
+                        </label>
+                        <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+                            <input type="checkbox" id="copyOnlyResults" class="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="text-sm text-gray-700">Copy only (click values to copy; no editing)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-center">
+                    <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition duration-200">
+                        Calculate Payroll
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loading" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8 text-center">
+            <div class="inline-flex items-center">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-blue-700">Calculating payroll...</span>
+            </div>
+        </div>
+
+        <!-- YTD Update Notification -->
+        <div id="ytdNotification" class="hidden bg-green-50 border border-green-200 rounded-lg p-4 mb-8 text-center">
+            <div class="inline-flex items-center">
+                <svg class="h-5 w-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-green-700" id="ytdNotificationText">YTD values updated successfully</span>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="error" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Error</h3>
+                    <div class="mt-2 text-sm text-red-700" id="errorMessage"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Table / Cards -->
+        <div id="results" class="hidden bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                <h2 class="text-lg md:text-xl font-semibold text-gray-800">Payroll Results</h2>
+                <p class="text-sm text-gray-600 mt-1" id="resultsSummary"></p>
+                <div id="taxTotalsSummary" class="mt-2 text-sm text-gray-700">
+                    <span class="font-semibold">Tax Totals (selected):</span>
+                    <span class="ml-2">Federal: <span id="federalTaxTotal">$0.00</span></span>
+                    <span class="ml-4">State &amp; Local: <span id="stateLocalTaxTotal">$0.00</span></span>
+                </div>
+                
+                <!-- Instructions -->
+                <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <p id="resultsEditTip" class="text-xs text-blue-800">
+                        <strong>💡 Tip:</strong> Click any blue field to edit current period values. 
+                        Click any green field to edit YTD values. 
+                        When you update a pay period, all YTD totals for that period and all subsequent periods will automatically recalculate.
+                    </p>
+                </div>
+
+                <!-- Filter Section -->
+                <div class="mt-4 space-y-4">
+                    <div class="flex flex-col">
+                        <label for="checkDateFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Check Date(s)</label>
+                        <select id="checkDateFilter" multiple class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" style="min-height: 120px;">
+                            <option value="all">Show All Periods</option>
+                        </select>
+                        <div class="flex flex-col md:flex-row mt-2 gap-2">
+                            <button id="applyFilter" class="w-full md:w-auto bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition duration-200">
+                                Apply Filter
+                            </button>
+                            <button id="selectAll" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-200">
+                                Select All
+                            </button>
+                            <button id="clearAll" class="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-200">
+                                Clear All
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Saved Runs -->
+                <div class="mt-4 space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">Saved Runs</label>
+                    <div class="flex flex-col md:flex-row md:items-center md:space-x-2 space-y-2 md:space-y-0">
+                        <input type="text" id="runName" placeholder="Name this run (e.g., CA Biweekly Sep-12)" class="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <button id="saveRun" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-200">Save</button>
+                        <select id="savedRuns" class="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="">Select a saved run...</option>
+                        </select>
+                        <button id="loadRun" class="bg-gray-700 hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-md transition duration-200">Load</button>
+                        <button id="deleteRun" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-200">Delete</button>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex flex-col md:flex-row gap-2">
+                    <button id="exportCsv" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-200">
+                        Export to CSV
+                    </button>
+                    <button id="exportW2Csv" class="bg-emerald-700 hover:bg-emerald-800 text-white font-medium py-2 px-4 rounded-md transition duration-200">
+                        Export W-2 CSV
+                    </button>
+                </div>
+
+                <div id="w2Section" class="hidden mt-6 border border-emerald-200 rounded-lg bg-emerald-50/50 p-4">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Estimated W-2</h3>
+                            <p class="text-sm text-gray-600">Generated from the annual pay and tax totals in this run.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label for="w2YearSelect" class="text-sm font-medium text-gray-700">Tax Year</label>
+                            <select id="w2YearSelect" class="px-3 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"></select>
+                        </div>
+                    </div>
+                    <div id="w2Content"></div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 results-table">
+                    <thead id="tableHead" class="bg-gray-50">
+                        <tr>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pay Period</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check Date</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check Number</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gross Pay</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">YTD Gross</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Federal Tax</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">YTD Federal</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">State Tax</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">YTD State</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Social Security</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">YTD SS</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Medicare</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">YTD Medicare</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DI</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">YTD DI</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FLI</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">YTD FLI</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Taxes</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">YTD Total</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Pay</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">YTD Net</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Results will be populated here -->
+                    </tbody>
+                    <tfoot id="totalsRow" class="bg-gray-50">
+                        <!-- Totals row will be populated here -->
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Card View -->
+            <div id="mobileCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+                <!-- Cards will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="pay-period-generator.js"></script>
+    <script src="payroll-tax-engine.js"></script>
+    <script src="ytd-edit-engine.js"></script>
+    <script src="salary-conversion.js"></script>
+    <script src="w2-generator.js"></script>
+    <script src="payroll-calculator.js"></script>
+</body>
+</html>

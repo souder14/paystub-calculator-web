@@ -1,0 +1,38 @@
+# Test files
+test*.js
+test*.py
+test*.html
+validate_*.js
+
+# Documentation files
+*.md
+!README.md
+
+# CSV files
+*.csv
+
+# PDF files
+*.pdf
+
+# Python files (keep local static server for development)
+*.py
+!start_server.py
+
+# Temporary files
+*.tmp
+*.log
+
+# Bytecode / caches
+__pycache__/
+*.pyc
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

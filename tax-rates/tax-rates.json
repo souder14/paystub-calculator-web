@@ -1,0 +1,269 @@
+{
+  "metadata": {
+    "year": 2026,
+    "lastUpdated": "2026-03-13",
+    "sources": [
+      "https://www.irs.gov/newsroom/irs-releases-tax-inflation-adjustments-for-tax-year-2026",
+      "https://www.ssa.gov/news/en/cola/factsheets/2026.html",
+      "https://edd.ca.gov/en/payroll_taxes/rates_and_withholding/",
+      "https://www.nj.gov/treasury/taxation/",
+      "https://www.nj.gov/labor/ea/employer-services/rate-info/"
+    ]
+  },
+  "federal": {
+    "bracketsByYear": {
+      "2025": [
+        { "min": 0, "max": 11925, "rate": 0.10 },
+        { "min": 11926, "max": 48475, "rate": 0.12 },
+        { "min": 48476, "max": 103350, "rate": 0.22 },
+        { "min": 103351, "max": 197300, "rate": 0.24 },
+        { "min": 197301, "max": 250525, "rate": 0.32 },
+        { "min": 250526, "max": 626350, "rate": 0.35 },
+        { "min": 626351, "max": null, "rate": 0.37 }
+      ],
+      "2026": [
+        { "min": 0, "max": 12400, "rate": 0.10 },
+        { "min": 12401, "max": 50400, "rate": 0.12 },
+        { "min": 50401, "max": 105700, "rate": 0.22 },
+        { "min": 105701, "max": 201775, "rate": 0.24 },
+        { "min": 201776, "max": 256225, "rate": 0.32 },
+        { "min": 256226, "max": 640600, "rate": 0.35 },
+        { "min": 640601, "max": null, "rate": 0.37 }
+      ]
+    },
+    "brackets": [
+      { "min": 0, "max": 12400, "rate": 0.10 },
+      { "min": 12401, "max": 50400, "rate": 0.12 },
+      { "min": 50401, "max": 105700, "rate": 0.22 },
+      { "min": 105701, "max": 201775, "rate": 0.24 },
+      { "min": 201776, "max": 256225, "rate": 0.32 },
+      { "min": 256226, "max": 640600, "rate": 0.35 },
+      { "min": 640601, "max": null, "rate": 0.37 }
+    ],
+    "standardDeduction": 16100,
+    "standardDeductionByYear": {
+      "2025": 14600,
+      "2026": 16100
+    }
+  },
+  "socialSecurity": {
+    "rate": 0.062,
+    "wageLimit": 184500,
+    "ratesByYear": {
+      "2025": 0.062,
+      "2026": 0.062
+    },
+    "wageLimitsByYear": {
+      "2025": 176100,
+      "2026": 184500
+    }
+  },
+  "medicare": {
+    "rate": 0.0145,
+    "additionalRate": 0.009,
+    "additionalThreshold": 200000,
+    "ratesByYear": {
+      "2025": 0.0145,
+      "2026": 0.0145
+    },
+    "additionalRateByYear": {
+      "2025": 0.009,
+      "2026": 0.009
+    },
+    "additionalThresholdByYear": {
+      "2025": 200000,
+      "2026": 200000
+    }
+  },
+  "states": {
+    "NJ": {
+      "name": "New Jersey",
+      "allowances": 0,
+      "allowanceAmount": 1000,
+      "standardDeduction": 1000,
+      "brackets": [
+        { "min": 0, "max": 20000, "rate": 0.014 },
+        { "min": 20001, "max": 35000, "rate": 0.0175 },
+        { "min": 35001, "max": 40000, "rate": 0.035 },
+        { "min": 40001, "max": 75000, "rate": 0.05525 },
+        { "min": 75001, "max": 500000, "rate": 0.0637 },
+        { "min": 500001, "max": 1000000, "rate": 0.0897 },
+        { "min": 1000001, "max": null, "rate": 0.1075 }
+      ],
+      "di": {
+        "rate": 0.0019,
+        "wageLimit": 171100,
+        "ratesByYear": {
+          "2025": 0.0023,
+          "2026": 0.0019
+        },
+        "wageLimitsByYear": {
+          "2025": 165400,
+          "2026": 171100
+        }
+      },
+      "fli": {
+        "rate": 0.0023,
+        "wageLimit": 171100,
+        "ratesByYear": {
+          "2025": 0.0033,
+          "2026": 0.0023
+        },
+        "wageLimitsByYear": {
+          "2025": 165400,
+          "2026": 171100
+        }
+      },
+      "sui": {
+        "rate": 0.00425,
+        "wageLimit": 44800,
+        "ratesByYear": {
+          "2025": 0.00425,
+          "2026": 0.00425
+        },
+        "wageLimitsByYear": {
+          "2025": 43300,
+          "2026": 44800
+        },
+        "rateComponentsByYear": {
+          "2025": {
+            "ui": 0.003825,
+            "wfSwf": 0.000425
+          },
+          "2026": {
+            "ui": 0.003825,
+            "wfSwf": 0.000425
+          }
+        }
+      }
+    },
+    "CA": {
+      "name": "California",
+      "allowances": 0,
+      "allowanceAmount": 0,
+      "standardDeduction": 5363,
+      "brackets": [
+        { "min": 0, "max": 10756, "rate": 0.01 },
+        { "min": 10757, "max": 25499, "rate": 0.02 },
+        { "min": 25500, "max": 40245, "rate": 0.04 },
+        { "min": 40246, "max": 55866, "rate": 0.06 },
+        { "min": 55867, "max": 70606, "rate": 0.08 },
+        { "min": 70607, "max": 360659, "rate": 0.093 },
+        { "min": 360660, "max": 432787, "rate": 0.103 },
+        { "min": 432788, "max": 677278, "rate": 0.113 },
+        { "min": 677279, "max": null, "rate": 0.123 }
+      ],
+      "sdi": {
+        "rate": 0.013,
+        "wageLimit": "Infinity",
+        "ratesByYear": {
+          "2025": 0.012,
+          "2026": 0.013
+        },
+        "wageLimitsByYear": {
+          "2025": "Infinity",
+          "2026": "Infinity"
+        }
+      }
+    },
+    "NY": {
+      "name": "New York",
+      "allowances": 0,
+      "allowanceAmount": 0,
+      "standardDeduction": 8000,
+      "brackets": [
+        { "min": 0, "max": 8500, "rate": 0.04 },
+        { "min": 8501, "max": 11700, "rate": 0.045 },
+        { "min": 11701, "max": 13900, "rate": 0.0525 },
+        { "min": 13901, "max": 80650, "rate": 0.055 },
+        { "min": 80651, "max": 215400, "rate": 0.06 },
+        { "min": 215401, "max": 1077550, "rate": 0.0685 },
+        { "min": 1077551, "max": 5000000, "rate": 0.0965 },
+        { "min": 5000001, "max": 25000000, "rate": 0.103 },
+        { "min": 25000001, "max": null, "rate": 0.109 }
+      ],
+      "sdi": {
+        "rate": 0.005,
+        "wageLimit": 120,
+        "ratesByYear": {
+          "2025": 0.005,
+          "2026": 0.005
+        },
+        "wageLimitsByYear": {
+          "2025": 120,
+          "2026": 120
+        },
+        "maxPerWeek": 0.60
+      },
+      "pfl": {
+        "rate": 0.00432,
+        "wageLimit": 95348.76,
+        "ratesByYear": {
+          "2025": 0.00388,
+          "2026": 0.00432
+        },
+        "wageLimitsByYear": {
+          "2025": 91428.88,
+          "2026": 95348.76
+        },
+        "maxAnnual": 411.91
+      }
+    },
+    "TX": {
+      "name": "Texas",
+      "allowances": 0,
+      "allowanceAmount": 0,
+      "standardDeduction": 0,
+      "brackets": []
+    },
+    "FL": {
+      "name": "Florida",
+      "allowances": 0,
+      "allowanceAmount": 0,
+      "standardDeduction": 0,
+      "brackets": []
+    },
+    "WA": {
+      "name": "Washington",
+      "allowances": 0,
+      "allowanceAmount": 0,
+      "standardDeduction": 0,
+      "brackets": []
+    },
+    "NV": {
+      "name": "Nevada",
+      "allowances": 0,
+      "allowanceAmount": 0,
+      "standardDeduction": 0,
+      "brackets": []
+    },
+    "AK": {
+      "name": "Alaska",
+      "allowances": 0,
+      "allowanceAmount": 0,
+      "standardDeduction": 0,
+      "brackets": []
+    },
+    "WY": {
+      "name": "Wyoming",
+      "allowances": 0,
+      "allowanceAmount": 0,
+      "standardDeduction": 0,
+      "brackets": []
+    },
+    "SD": {
+      "name": "South Dakota",
+      "allowances": 0,
+      "allowanceAmount": 0,
+      "standardDeduction": 0,
+      "brackets": []
+    },
+    "TN": {
+      "name": "Tennessee",
+      "allowances": 0,
+      "allowanceAmount": 0,
+      "standardDeduction": 0,
+      "brackets": []
+    }
+  }
+}

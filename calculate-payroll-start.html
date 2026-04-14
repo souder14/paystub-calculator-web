@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Pay Period Start Date</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .result {
+            background: #f0f9ff;
+            padding: 15px;
+            border-left: 4px solid #3b82f6;
+            margin: 10px 0;
+        }
+        .highlight {
+            background: #fef3c7;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Calculate Your Payroll Calendar Start Date</h1>
+    <div id="output"></div>
+
+    <script>
+        function addDays(date, days) {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        }
+
+        // Parse date as local time (not UTC) to avoid timezone shifts
+        function parseLocalDate(dateStr) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            return new Date(year, month - 1, day);
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).replace(/\//g, '/');
+        }
+
+        function getDayName(date) {
+            return date.toLocaleDateString('en-US', { weekday: 'long' });
+        }
+
+        // Your known pay period (using local time parsing)
+        const knownStartDate = parseLocalDate('2025-03-10');
+        const knownEndDate = parseLocalDate('2025-03-23');
+        const knownPayDate = parseLocalDate('2025-03-28');
+
+        const output = document.getElementById('output');
+        const results = [];
+
+        // Trace backwards to find the first pay period of 2025
+        let currentDate = new Date(knownStartDate);
+        let periodNumber = 1;
+
+        output.innerHTML = '<h2>Tracing Backwards from March 10, 2025...</h2>';
+
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        thead.innerHTML = `
+            <tr>
+                <th>Period #</th>
+                <th>Start Date</th>
+                <th>Day</th>
+                <th>End Date</th>
+                <th>Day</th>
+                <th>Pay Date</th>
+                <th>Day</th>
+            </tr>
+        `;
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+
+        // Keep going backwards until we find a period that starts in 2024
+        while (currentDate.getFullYear() >= 2024) {
+            const endDate = addDays(currentDate, 13); // 14-day period (start + 13 days)
+            const payDate = addDays(endDate, 5); // Pay date is 5 days after period ends
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${periodNumber}</td>
+                <td>${formatDate(currentDate)}</td>
+                <td>${getDayName(currentDate)}</td>
+                <td>${formatDate(endDate)}</td>
+                <td>${getDayName(endDate)}</td>
+                <td>${formatDate(payDate)}</td>
+                <td>${getDayName(payDate)}</td>
+            `;
+            tbody.appendChild(row);
+
+            results.push({
+                periodNumber,
+                startDate: new Date(currentDate),
+                endDate: new Date(endDate),
+                payDate: new Date(payDate)
+            });
+
+            // Move back 14 days
+            currentDate = addDays(currentDate, -14);
+            periodNumber++;
+        }
+
+        table.appendChild(tbody);
+        output.appendChild(table);
+
+        // Find the first period of 2025
+        const first2025Period = results.reverse().find(p =>
+            p.startDate.getFullYear() === 2025 ||
+            (p.startDate.getFullYear() === 2024 && p.endDate.getFullYear() === 2025)
+        );
+
+        const highlight = document.createElement('div');
+        highlight.className = 'highlight';
+        highlight.innerHTML = `
+            <h3>✅ Result: First Pay Period of 2025</h3>
+            <p><strong>Period Start:</strong> ${formatDate(first2025Period.startDate)} (${getDayName(first2025Period.startDate)})</p>
+            <p><strong>Period End:</strong> ${formatDate(first2025Period.endDate)} (${getDayName(first2025Period.endDate)})</p>
+            <p><strong>Pay Date:</strong> ${formatDate(first2025Period.payDate)} (${getDayName(first2025Period.payDate)})</p>
+            <hr style="margin: 15px 0;">
+            <p><strong>To use this in the application:</strong></p>
+            <ol>
+                <li>Open the Payroll Calculator</li>
+                <li>Click "Show" next to "Pay Period Settings"</li>
+                <li>Enter <code>2025-01-06</code> in "First Period Start" field</li>
+                <li>Click "Apply & Reload Pay Periods"</li>
+            </ol>
+        `;
+        output.appendChild(highlight);
+
+        // Also show what the generator settings should be
+        const settingsDiv = document.createElement('div');
+        settingsDiv.className = 'result';
+        settingsDiv.innerHTML = `
+            <h3>Generator Settings:</h3>
+            <p><strong>First Period Start Date:</strong> ${formatDate(first2025Period.startDate)}</p>
+            <p><strong>Days After Period for Pay Date:</strong> 5 (default)</p>
+        `;
+        output.appendChild(settingsDiv);
+    </script>
+</body>
+</html>
