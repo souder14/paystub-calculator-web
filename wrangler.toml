@@ -1,0 +1,7 @@
+# Cloudflare Pages — static files live at the repo root (see pages_build_output_dir).
+# Use: npx wrangler pages deploy
+# Do NOT use: npx wrangler deploy  (that targets Workers, not this site)
+
+name = "paystub-calculator-web"
+compatibility_date = "2024-04-01"
+pages_build_output_dir = "."
