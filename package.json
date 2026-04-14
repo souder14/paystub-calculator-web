@@ -13,6 +13,6 @@
     "cf:whoami": "wrangler whoami"
   },
   "devDependencies": {
-    "wrangler": "^4.82.0"
+    "wrangler": "^4.82.2"
   }
 }
